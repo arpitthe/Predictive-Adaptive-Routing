@@ -1,0 +1,106 @@
+{
+  "Validation": {
+    "Moving Average": {
+      "regression": {
+        "MAE": 0.17723349154793908,
+        "RMSE": 0.3881828372124573,
+        "R2": 0.9178773009054259,
+        "MAPE": 13.022795758246264
+      },
+      "classification": {
+        "accuracy": 1.0,
+        "balanced_accuracy": 1.0,
+        "precision": null,
+        "recall": null,
+        "specificity": 1.0,
+        "f1": null,
+        "mcc": 0.0,
+        "pr_auc": null,
+        "confusion_matrix": {
+          "TN": 2000,
+          "FP": 0,
+          "FN": 0,
+          "TP": 0
+        }
+      },
+      "inference_ms_per_sample": 0.0
+    },
+    "amazon/chronos-2": {
+      "regression": {
+        "MAE": 0.1787512927850335,
+        "RMSE": 0.42002788016331816,
+        "R2": 0.9038505527668196,
+        "MAPE": 12.969492199780456
+      },
+      "classification": {
+        "accuracy": 1.0,
+        "balanced_accuracy": 1.0,
+        "precision": null,
+        "recall": null,
+        "specificity": 1.0,
+        "f1": null,
+        "mcc": 0.0,
+        "pr_auc": null,
+        "confusion_matrix": {
+          "TN": 2000,
+          "FP": 0,
+          "FN": 0,
+          "TP": 0
+        }
+      },
+      "inference_ms_per_sample": 0.7772026499987987
+    }
+  },
+  "Test": {
+    "Moving Average": {
+      "regression": {
+        "MAE": 0.24932289955368023,
+        "RMSE": 1.07992216561564,
+        "R2": 0.9629639420300506,
+        "MAPE": 9.4086001532418
+      },
+      "classification": {
+        "accuracy": 0.9996351575456053,
+        "balanced_accuracy": 0.9815958953777101,
+        "precision": 0.9758588672237697,
+        "recall": 0.9633363886342805,
+        "specificity": 0.9998554021211397,
+        "f1": 0.9695571955719557,
+        "mcc": 0.969394138904933,
+        "pr_auc": 0.9912793635964027,
+        "confusion_matrix": {
+          "TN": 179783,
+          "FP": 26,
+          "FN": 40,
+          "TP": 1051
+        }
+      },
+      "inference_ms_per_sample": 0.0
+    },
+    "amazon/chronos-2": {
+      "regression": {
+        "MAE": 0.23371667079923178,
+        "RMSE": 1.0118460551612647,
+        "R2": 0.9674861250989386,
+        "MAPE": 8.88776151462569
+      },
+      "classification": {
+        "accuracy": 0.9996019900497513,
+        "balanced_accuracy": 0.9879564127979186,
+        "precision": 0.9585958595859586,
+        "recall": 0.9761686526122824,
+        "specificity": 0.9997441729835548,
+        "f1": 0.9673024523160764,
+        "mcc": 0.9671426282150074,
+        "pr_auc": 0.9574511357420034,
+        "confusion_matrix": {
+          "TN": 179763,
+          "FP": 46,
+          "FN": 26,
+          "TP": 1065
+        }
+      },
+      "inference_ms_per_sample": 0.7476762161415471
+    }
+  }
+}

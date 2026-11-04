@@ -1,0 +1,11 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+fastapi
+uvicorn
+joblib
+chronos-forecasting
+torch
+transformers
+pydantic

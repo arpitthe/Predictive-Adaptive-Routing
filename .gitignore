@@ -1,0 +1,44 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Testing cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Downloaded model weights and checkpoints
+models/*
+!models/.gitkeep
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Dataset files
+data/*
+!data/README.md
+
+# Large generated inspection datasets
+reports/*.csv
+
+# Hugging Face cache
+.huggingface/
+.cache/
+cache/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

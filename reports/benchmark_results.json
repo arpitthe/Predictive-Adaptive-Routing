@@ -1,0 +1,45 @@
+{
+  "Persistence": {
+    "MAE": 0.18041784611559142,
+    "RMSE": 0.42517428174784133,
+    "R2": 0.9014799716198151,
+    "MAPE": 13.524485056044933,
+    "inference_ms_per_sample": 0.0,
+    "peak_memory_mb": 0.0
+  },
+  "Moving Average": {
+    "MAE": 0.17723349154793908,
+    "RMSE": 0.3881828372124573,
+    "R2": 0.9178773009054259,
+    "MAPE": 13.022795758246264,
+    "inference_ms_per_sample": 0.0,
+    "peak_memory_mb": 0.0
+  },
+  "chronos-t5-tiny (zero-shot)": {
+    "MAE": 0.18195596379443182,
+    "RMSE": 0.43383827421150745,
+    "R2": 0.8974238764869482,
+    "MAPE": 12.82166933625137,
+    "inference_ms_per_sample": 0.7669104000087827,
+    "total_inference_s": 1.5338208000175655,
+    "peak_memory_mb": 0.7584905624389648
+  },
+  "chronos-2 univariate (zero-shot)": {
+    "MAE": 0.1787512927850335,
+    "RMSE": 0.42002788016331816,
+    "R2": 0.9038505527668196,
+    "MAPE": 12.969492199780456,
+    "inference_ms_per_sample": 0.8303626999841072,
+    "total_inference_s": 1.6607253999682143,
+    "peak_memory_mb": 1.3126859664916992
+  },
+  "chronos-2 + past_covariates (zero-shot)": {
+    "MAE": 0.1805461521190911,
+    "RMSE": 0.4169455694768462,
+    "R2": 0.9052565311659181,
+    "MAPE": 13.108000180922897,
+    "inference_ms_per_sample": 3.8545897500007413,
+    "total_inference_s": 7.709179500001483,
+    "peak_memory_mb": 2.1659622192382812
+  }
+}

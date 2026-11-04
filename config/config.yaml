@@ -1,0 +1,5 @@
+congestion:
+  # The utilization percentage threshold (0-100 scale) above which risk is HIGH.
+  # Set to 50.0 as the maximum utilization in the dataset is ~75% and mean is low (~3%).
+  # A threshold of 50.0 effectively identifies heavy link utilization in this network.
+  high_threshold: 50.0

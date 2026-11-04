@@ -1,0 +1,285 @@
+==================================================
+AUDITING TRAIN SET
+==================================================
+Shape: (1085400, 19)
+Columns: ['timestamp', 'week_id', 'step', 'link_index', 'src', 'dst', 'capacity_kbps', 'traffic_kbps', 'utilization_pct', 'util_lag_1', 'util_lag_2', 'util_lag_3', 'util_lag_4', 'util_lag_5', 'util_mean_3', 'util_std_3', 'util_trend_3', 'target_utilization_pct', 'target_congestion']
+
+Dtypes:
+timestamp                     str
+week_id                     int64
+step                        int64
+link_index                  int64
+src                           str
+dst                           str
+capacity_kbps             float64
+traffic_kbps              float64
+utilization_pct           float64
+util_lag_1                float64
+util_lag_2                float64
+util_lag_3                float64
+util_lag_4                float64
+util_lag_5                float64
+util_mean_3               float64
+util_std_3                float64
+util_trend_3              float64
+target_utilization_pct    float64
+target_congestion           int64
+dtype: object
+
+Missing values:
+Series([], dtype: int64)
+Duplicate rows: 0
+Unique links: 30
+Unique src-dst pairs: 30
+Time range: 2004-03-01 00:25:00 to 2004-07-30 23:50:00
+Number of weekly partitions: 18
+
+Target utilization stats:
+count    1.085400e+06
+mean     2.718378e+00
+std      4.029088e+00
+min      0.000000e+00
+25%      8.095616e-01
+50%      1.962289e+00
+75%      3.777467e+00
+max      7.024298e+01
+Name: target_utilization_pct, dtype: float64
+
+Utilization stats:
+count    1.085400e+06
+mean     2.718693e+00
+std      4.031238e+00
+min      0.000000e+00
+25%      8.095682e-01
+50%      1.962367e+00
+75%      3.777664e+00
+max      7.024298e+01
+Name: utilization_pct, dtype: float64
+Suspicious values (negative utilization): 0
+Sample utilization_pct values (already in percentage-point units, 0-100 scale):
+  0.059749%
+  0.058392%
+  0.070124%
+  0.068164%
+  0.070744%
+
+Unit check -- max |calculated - stored| utilization_pct: 0.00000000%
+  [OK] Stored values match (traffic/capacity)*100. Scale is correct.
+
+Target congestion class distribution:
+target_congestion
+0    1085400
+Name: count, dtype: int64
+
+Numeric columns Min/Max:
+  week_id: Min = 1, Max = 18
+  step: Min = 5, Max = 2014
+  link_index: Min = 1, Max = 30
+  capacity_kbps: Min = 2480000.0, Max = 9920000.0
+  traffic_kbps: Min = 0.0, Max = 6968103.456
+  utilization_pct: Min = 0.0, Max = 70.24297838709678
+  util_lag_1: Min = 0.0, Max = 70.24297838709678
+  util_lag_2: Min = 0.0, Max = 70.24297838709678
+  util_lag_3: Min = 0.0, Max = 70.24297838709678
+  util_lag_4: Min = 0.0, Max = 70.24297838709678
+  util_lag_5: Min = 0.0, Max = 70.24297838709678
+  util_mean_3: Min = 0.0, Max = 69.88299508960574
+  util_std_3: Min = 0.0, Max = 36.3172479250889
+  util_trend_3: Min = -64.82992341397849, Max = 64.65192680107526
+  target_utilization_pct: Min = 0.0, Max = 70.24297838709678
+  target_congestion: Min = 0, Max = 0
+
+
+==================================================
+AUDITING VAL SET
+==================================================
+Shape: (180900, 19)
+Columns: ['timestamp', 'week_id', 'step', 'link_index', 'src', 'dst', 'capacity_kbps', 'traffic_kbps', 'utilization_pct', 'util_lag_1', 'util_lag_2', 'util_lag_3', 'util_lag_4', 'util_lag_5', 'util_mean_3', 'util_std_3', 'util_trend_3', 'target_utilization_pct', 'target_congestion']
+
+Dtypes:
+timestamp                     str
+week_id                     int64
+step                        int64
+link_index                  int64
+src                           str
+dst                           str
+capacity_kbps             float64
+traffic_kbps              float64
+utilization_pct           float64
+util_lag_1                float64
+util_lag_2                float64
+util_lag_3                float64
+util_lag_4                float64
+util_lag_5                float64
+util_mean_3               float64
+util_std_3                float64
+util_trend_3              float64
+target_utilization_pct    float64
+target_congestion           int64
+dtype: object
+
+Missing values:
+Series([], dtype: int64)
+Duplicate rows: 0
+Unique links: 30
+Unique src-dst pairs: 30
+Time range: 2004-07-31 00:25:00 to 2004-08-19 23:50:00
+Number of weekly partitions: 3
+
+Target utilization stats:
+count    180900.000000
+mean          2.053060
+std           2.001263
+min           0.001860
+25%           0.804357
+50%           1.600234
+75%           3.090472
+max          56.371257
+Name: target_utilization_pct, dtype: float64
+
+Utilization stats:
+count    180900.000000
+mean          2.052334
+std           1.995154
+min           0.001860
+25%           0.804377
+50%           1.600298
+75%           3.090541
+max          56.371257
+Name: utilization_pct, dtype: float64
+Suspicious values (negative utilization): 0
+Sample utilization_pct values (already in percentage-point units, 0-100 scale):
+  0.019367%
+  0.011298%
+  0.008575%
+  0.008590%
+  0.007669%
+
+Unit check -- max |calculated - stored| utilization_pct: 0.00000000%
+  [OK] Stored values match (traffic/capacity)*100. Scale is correct.
+
+Target congestion class distribution:
+target_congestion
+0    180900
+Name: count, dtype: int64
+
+Numeric columns Min/Max:
+  week_id: Min = 19, Max = 21
+  step: Min = 5, Max = 2014
+  link_index: Min = 1, Max = 30
+  capacity_kbps: Min = 2480000.0, Max = 9920000.0
+  traffic_kbps: Min = 184.488, Max = 5592028.728
+  utilization_pct: Min = 0.0018597580645161, Max = 56.37125733870968
+  util_lag_1: Min = 0.0018597580645161, Max = 56.37125733870968
+  util_lag_2: Min = 0.0018597580645161, Max = 56.37125733870968
+  util_lag_3: Min = 0.0018597580645161, Max = 56.37125733870968
+  util_lag_4: Min = 0.0018597580645161, Max = 56.37125733870968
+  util_lag_5: Min = 0.0018597580645161, Max = 56.37125733870968
+  util_mean_3: Min = 0.0027492473118279, Max = 42.25017682795699
+  util_std_3: Min = 4.6545885869242215e-05, Max = 28.712389391758705
+  util_trend_3: Min = -52.12872825268817, Max = 51.96713575268817
+  target_utilization_pct: Min = 0.0018597580645161, Max = 56.37125733870968
+  target_congestion: Min = 0, Max = 0
+
+
+==================================================
+AUDITING TEST SET
+==================================================
+Shape: (180900, 19)
+Columns: ['timestamp', 'week_id', 'step', 'link_index', 'src', 'dst', 'capacity_kbps', 'traffic_kbps', 'utilization_pct', 'util_lag_1', 'util_lag_2', 'util_lag_3', 'util_lag_4', 'util_lag_5', 'util_mean_3', 'util_std_3', 'util_trend_3', 'target_utilization_pct', 'target_congestion']
+
+Dtypes:
+timestamp                     str
+week_id                     int64
+step                        int64
+link_index                  int64
+src                           str
+dst                           str
+capacity_kbps             float64
+traffic_kbps              float64
+utilization_pct           float64
+util_lag_1                float64
+util_lag_2                float64
+util_lag_3                float64
+util_lag_4                float64
+util_lag_5                float64
+util_mean_3               float64
+util_std_3                float64
+util_trend_3              float64
+target_utilization_pct    float64
+target_congestion           int64
+dtype: object
+
+Missing values:
+Series([], dtype: int64)
+Duplicate rows: 0
+Unique links: 30
+Unique src-dst pairs: 30
+Time range: 2004-08-21 00:25:00 to 2004-09-10 23:50:00
+Number of weekly partitions: 3
+
+Target utilization stats:
+count    180900.000000
+mean          3.108982
+std           5.611530
+min           0.000000
+25%           0.990472
+50%           2.047121
+75%           3.941240
+max          75.355010
+Name: target_utilization_pct, dtype: float64
+
+Utilization stats:
+count    180900.000000
+mean          3.109021
+std           5.611652
+min           0.000000
+25%           0.990411
+50%           2.047011
+75%           3.941189
+max          75.355010
+Name: utilization_pct, dtype: float64
+Suspicious values (negative utilization): 0
+Sample utilization_pct values (already in percentage-point units, 0-100 scale):
+  0.035777%
+  0.025226%
+  0.018355%
+  0.022694%
+  0.034722%
+
+Unit check -- max |calculated - stored| utilization_pct: 0.00000000%
+  [OK] Stored values match (traffic/capacity)*100. Scale is correct.
+
+Target congestion class distribution:
+target_congestion
+0    180900
+Name: count, dtype: int64
+
+Numeric columns Min/Max:
+  week_id: Min = 22, Max = 24
+  step: Min = 5, Max = 2014
+  link_index: Min = 1, Max = 30
+  capacity_kbps: Min = 2480000.0, Max = 9920000.0
+  traffic_kbps: Min = 0.0, Max = 7475217.008
+  utilization_pct: Min = 0.0, Max = 75.35501016129032
+  util_lag_1: Min = 0.0, Max = 75.35501016129032
+  util_lag_2: Min = 0.0, Max = 75.35501016129032
+  util_lag_3: Min = 0.0, Max = 75.35501016129032
+  util_lag_4: Min = 0.0, Max = 75.35501016129032
+  util_lag_5: Min = 0.0, Max = 75.35501016129032
+  util_mean_3: Min = 0.0068059767025089, Max = 72.33879112007169
+  util_std_3: Min = 4.654588585982855e-05, Max = 33.75820185893817
+  util_trend_3: Min = -65.39820559139784, Max = 63.97056559139784
+  target_utilization_pct: Min = 0.0, Max = 75.35501016129032
+  target_congestion: Min = 0, Max = 0
+
+
+==================================================
+CHRONOLOGICAL VERIFICATION
+==================================================
+Train ends:  2004-07-30 23:50:00
+Val starts:  2004-07-31 00:25:00
+Val ends:    2004-08-19 23:50:00
+Test starts: 2004-08-21 00:25:00
+Train is chronologically before Validation: True
+Validation is chronologically before Test:  True
