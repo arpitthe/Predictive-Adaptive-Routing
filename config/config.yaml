@@ -1,5 +1,41 @@
+# ==============================================================================
+# Prediction & ML Layer Configuration
+# Predictive AI-Assisted Adaptive Routing
+# ==============================================================================
+
+model:
+  # Primary zero-shot neural forecasting foundation model
+  model_id: "amazon/chronos-2"
+  # Target prediction horizon in minutes
+  prediction_horizon_minutes: 5
+  # Number of historical observations required for default context window
+  # 6 points * 5-minute sampling interval = 30 minutes of telemetry history
+  context_length: 6
+  # Median quantile index in Chronos-2 output (index 10 among 21 quantiles = 0.50)
+  median_quantile_idx: 10
+  # Device selection: "auto", "cuda", or "cpu"
+  device: "auto"
+  # Data type for inference: "float32" or "bfloat16" (cuda only)
+  dtype: "float32"
+  # Batch size for model inference
+  batch_size: 64
+
 congestion:
-  # The utilization percentage threshold (0-100 scale) above which risk is HIGH.
-  # Set to 50.0 as the maximum utilization in the dataset is ~75% and mean is low (~3%).
-  # A threshold of 50.0 effectively identifies heavy link utilization in this network.
+  # Utilization percentage threshold (0–100 scale) above which risk is HIGH.
+  # The dataset maximum across splits is ~75% and mean is low (~3%).
+  # A threshold of 50.0 effectively isolates heavy link congestion in this network.
   high_threshold: 50.0
+
+routing_cost:
+  # Base cost for any link (minimum non-negative cost for Dijkstra)
+  base_cost: 1.0
+  # Utilization scaling divisor: cost += predicted_utilization_pct / cost_factor
+  # E.g. +1.0 cost for every 10% utilization
+  cost_factor: 10.0
+  # High congestion penalty added when predicted_utilization_pct > high_threshold
+  penalty: 100.0
+
+fallback:
+  # When primary model (Chronos-2) fails to load or inference fails, allow fallback
+  enable_fallback: true
+  fallback_model: "Moving Average"

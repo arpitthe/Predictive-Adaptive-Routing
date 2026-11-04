@@ -24,6 +24,7 @@ models/*
 *.pth
 *.ckpt
 *.safetensors
+*.pkl
 
 # Dataset files
 data/*

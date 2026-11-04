@@ -56,19 +56,20 @@ def run_inference(df_eval: pd.DataFrame):
     print(f"[{CHRONOS_2_ID}] Running inference ({len(inputs)} samples)...")
     t0 = time.perf_counter()
     
-    # Run in batches
-    for i in range(0, len(inputs), BATCH_SIZE):
-        batch = inputs[i:i + BATCH_SIZE]
-        forecasts = pipe.predict(
-            inputs=batch,
-            prediction_length=1,
-        )
-        for f in forecasts:
-            median_val = float(f[0, MEDIAN_QUANTILE_IDX, 0].item())
-            preds.append(median_val)
-            
-        if (i + BATCH_SIZE) % (BATCH_SIZE * 50) == 0:
-            print(f"  Processed {min(i+BATCH_SIZE, len(inputs))} / {len(inputs)}")
+    # Run in batches with inference_mode to avoid autograd memory overhead
+    with torch.inference_mode():
+        for i in range(0, len(inputs), BATCH_SIZE):
+            batch = inputs[i:i + BATCH_SIZE]
+            forecasts = pipe.predict(
+                inputs=batch,
+                prediction_length=1,
+            )
+            for f in forecasts:
+                median_val = float(f[0, MEDIAN_QUANTILE_IDX, 0].item())
+                preds.append(median_val)
+                
+            if (i + BATCH_SIZE) % (BATCH_SIZE * 50) == 0:
+                print(f"  Processed {min(i+BATCH_SIZE, len(inputs))} / {len(inputs)}")
         
     elapsed = time.perf_counter() - t0
     # Clamping safely

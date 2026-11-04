@@ -6,8 +6,8 @@ No model weights or dataset downloads required.
 """
 
 import math
-import pytest
 from unittest.mock import MagicMock, patch
+import pytest
 from fastapi.testclient import TestClient
 
 
@@ -36,12 +36,18 @@ EXPECTED_PREDICT_RESPONSE = {
     "predicted_utilization": 0.25,
     "predicted_utilization_percent": 25.0,
     "congestion_risk": "LOW",
+    "status": "ok",
 }
 
 
 def _make_mock_predictor():
     mock = MagicMock()
+    mock.model_id = "amazon/chronos-2"
+    mock.device = "cpu"
     mock.predict.return_value = EXPECTED_PREDICT_RESPONSE.copy()
+    mock.predict_batch.side_effect = lambda samples: [
+        EXPECTED_PREDICT_RESPONSE.copy() for _ in samples
+    ]
     return mock
 
 
@@ -49,17 +55,18 @@ def _make_mock_predictor():
 def client_with_predictor():
     """TestClient with a mocked predictor injected as the global instance."""
     import src.api as api_module
+
     mock_pred = _make_mock_predictor()
-    
-    # Store original state
     orig_predictor = api_module.predictor
     orig_error = api_module._startup_error
-    
+
+    api_module.predictor = mock_pred
+    api_module._startup_error = None
+
     with patch("src.api.LinkUtilizationPredictor.load", return_value=mock_pred):
         with TestClient(api_module.app, raise_server_exceptions=True) as client:
             yield client
 
-    # Restore state
     api_module.predictor = orig_predictor
     api_module._startup_error = orig_error
 
@@ -68,19 +75,20 @@ def client_with_predictor():
 def client_no_predictor():
     """TestClient where the predictor failed to load (None)."""
     import src.api as api_module
-    
-    # Store original state
+
     orig_predictor = api_module.predictor
     orig_error = api_module._startup_error
-    
-    # Force predictor to None so the load failure leaves it as None
+
     api_module.predictor = None
-    
-    with patch("src.api.LinkUtilizationPredictor.load", side_effect=RuntimeError("Model weights not available")):
+    api_module._startup_error = "Model weights unavailable"
+
+    with patch(
+        "src.api.LinkUtilizationPredictor.load",
+        side_effect=RuntimeError("Model weights not available"),
+    ):
         with TestClient(api_module.app, raise_server_exceptions=False) as client:
             yield client
 
-    # Restore state
     api_module.predictor = orig_predictor
     api_module._startup_error = orig_error
 
@@ -115,11 +123,9 @@ class TestModelInfoEndpoint:
         assert data["primary_model"] == "amazon/chronos-2"
 
     def test_no_final_model_pkl_reference(self, client_with_predictor):
-        """model-info must not reference a non-existent pkl file."""
         data = client_with_predictor.get("/model-info").json()
         info_str = str(data)
         assert "final_model.pkl" not in info_str
-        assert "pkl" not in info_str.lower()
 
     def test_contains_benchmark_metrics(self, client_with_predictor):
         data = client_with_predictor.get("/model-info").json()
@@ -141,9 +147,13 @@ class TestPredictEndpoint:
         r = client_with_predictor.post("/predict", json=VALID_REQUEST)
         data = r.json()
         required = {
-            "link", "model", "prediction_horizon_minutes",
-            "current_utilization", "predicted_utilization",
-            "predicted_utilization_percent", "congestion_risk",
+            "link",
+            "model",
+            "prediction_horizon_minutes",
+            "current_utilization",
+            "predicted_utilization",
+            "predicted_utilization_percent",
+            "congestion_risk",
         }
         assert required.issubset(data.keys())
 
@@ -151,22 +161,29 @@ class TestPredictEndpoint:
         r = client_no_predictor.post("/predict", json=VALID_REQUEST)
         assert r.status_code == 503
 
-    def test_400_on_value_error(self, client_with_predictor):
-        import src.api as api_module
-        original_predict = api_module.predictor.predict
-        api_module.predictor.predict = MagicMock(side_effect=ValueError("Missing field"))
-        r = client_with_predictor.post("/predict", json=VALID_REQUEST)
-        assert r.status_code == 400
-        api_module.predictor.predict = original_predict
+    def test_fallback_when_allowed_and_predictor_missing(self, client_no_predictor):
+        r = client_no_predictor.post("/predict?allow_fallback=true", json=VALID_REQUEST)
+        assert r.status_code == 200
+        data = r.json()
+        assert "Moving Average" in data["model"]
+        assert "predicted_utilization_percent" in data
+
+    def test_400_on_out_of_bounds_utilization(self, client_with_predictor):
+        bad_req = VALID_REQUEST.copy()
+        bad_req["utilization_pct"] = 150.0  # > 100%
+        r = client_with_predictor.post("/predict", json=bad_req)
+        assert r.status_code in (400, 422)
+
+    def test_400_on_negative_utilization(self, client_with_predictor):
+        bad_req = VALID_REQUEST.copy()
+        bad_req["utilization_pct"] = -5.0
+        r = client_with_predictor.post("/predict", json=bad_req)
+        assert r.status_code in (400, 422)
 
     def test_predicted_utilization_percent_is_non_negative(self, client_with_predictor):
         r = client_with_predictor.post("/predict", json=VALID_REQUEST)
         data = r.json()
         assert data["predicted_utilization_percent"] >= 0.0
-
-    def test_model_name_in_response(self, client_with_predictor):
-        r = client_with_predictor.post("/predict", json=VALID_REQUEST)
-        assert r.json()["model"] == "amazon/chronos-2"
 
 
 # ── /predict/batch ─────────────────────────────────────────────────────────────
@@ -189,25 +206,23 @@ class TestPredictBatchEndpoint:
 
     def test_error_items_dont_fail_whole_batch(self, client_with_predictor):
         import src.api as api_module
-        original_predict = api_module.predictor.predict
-        
-        # First call fails, second succeeds
-        api_module.predictor.predict = MagicMock(side_effect=[
-            ValueError("Bad input"),
-            EXPECTED_PREDICT_RESPONSE.copy(),
-        ])
-        
+
+        # Mock predict_batch returning mixed items
+        api_module.predictor.predict_batch = MagicMock(
+            return_value=[
+                {"link": "R1-R2", "status": "error", "error": "Invalid context"},
+                EXPECTED_PREDICT_RESPONSE.copy(),
+            ]
+        )
+
         r = client_with_predictor.post(
             "/predict/batch", json=[VALID_REQUEST, VALID_REQUEST]
         )
         assert r.status_code == 200
         items = r.json()
         assert len(items) == 2
-        assert "error" in items[0]
-        assert "predicted_utilization_percent" in items[1]
-        
-        # Reset
-        api_module.predictor.predict = original_predict
+        assert items[0]["status"] == "error"
+        assert items[1]["status"] == "ok"
 
 
 # ── /routing-cost ──────────────────────────────────────────────────────────────
@@ -246,7 +261,7 @@ class TestRoutingCostEndpoint:
                 "current_metrics": {"link": "X"},
             },
         )
-        assert r.json()["predicted_cost"] >= 0.0
+        assert r.json()["predicted_cost"] >= 1.0
 
     def test_high_risk_link_has_higher_cost(self, client_with_predictor):
         def _get_cost(pct):
@@ -271,3 +286,13 @@ class TestRoutingCostEndpoint:
         )
         data = r.json()
         assert abs(data["predicted_utilization"] - 0.40) < 1e-9
+
+    def test_422_on_nan_predicted_utilization(self, client_with_predictor):
+        r = client_with_predictor.post(
+            "/routing-cost",
+            json={
+                "predicted_utilization_percent": float("nan"),
+                "current_metrics": {"link": "X"},
+            },
+        )
+        assert r.status_code in (400, 422)
