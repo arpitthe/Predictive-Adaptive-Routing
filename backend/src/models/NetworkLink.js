@@ -1,5 +1,6 @@
-
 import mongoose from "mongoose";
+import { memoryStore } from "../storage/memoryStore.js";
+import { isMemoryMode } from "../storage/index.js";
 
 const networkLinkSchema = new mongoose.Schema(
   {
@@ -74,6 +75,20 @@ networkLinkSchema.pre("validate", function () {
   }
 });
 
-const NetworkLink = mongoose.model("NetworkLink", networkLinkSchema);
+export const MongooseNetworkLink =
+  mongoose.models.NetworkLink ||
+  mongoose.model("NetworkLink", networkLinkSchema);
+
+// Storage-aware proxy: delegates to memoryStore when STORAGE_MODE=memory
+const NetworkLink = new Proxy(MongooseNetworkLink, {
+  get(target, prop, receiver) {
+    if (isMemoryMode()) {
+      if (prop in memoryStore.links) {
+        return memoryStore.links[prop];
+      }
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+});
 
 export default NetworkLink;

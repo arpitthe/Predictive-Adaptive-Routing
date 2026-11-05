@@ -197,3 +197,39 @@ export const getTelemetryByLink = async (req, res) => {
     });
   }
 };
+
+// Advance logical replay by one 5-minute interval (Demonstration mode)
+export const stepReplay = async (req, res) => {
+  try {
+    const { advanceReplayStep } = await import("../storage/demoData.js");
+    const result = await advanceReplayStep();
+    res.status(200).json({
+      success: true,
+      message: "Advanced replay by 5-minute logical step",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Reseed demo topology and telemetry (Demonstration mode)
+export const reseedDemo = async (req, res) => {
+  try {
+    const { seedDemoData } = await import("../storage/demoData.js");
+    const summary = await seedDemoData({ clearExisting: true });
+    res.status(200).json({
+      success: true,
+      message: "Demo topology and telemetry history reseeded successfully",
+      data: summary,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

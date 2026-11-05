@@ -1,5 +1,6 @@
-
 import mongoose from "mongoose";
+import { memoryStore } from "../storage/memoryStore.js";
+import { isMemoryMode } from "../storage/index.js";
 
 const routingDecisionSchema = new mongoose.Schema(
   {
@@ -43,13 +44,28 @@ const routingDecisionSchema = new mongoose.Schema(
 
         congestionRisk: {
           type: String,
-          enum: ["LOW", "HIGH"],
+          enum: ["LOW", "HIGH", "UNKNOWN"],
           required: true,
         },
 
         routingCost: {
           type: Number,
           required: true,
+        },
+
+        predictionStatus: {
+          type: String,
+          enum: ["ok", "error", "insufficient_history"],
+        },
+
+        predictionModel: {
+          type: String,
+          default: null,
+        },
+
+        predictionError: {
+          type: String,
+          default: null,
         },
       },
     ],
@@ -69,9 +85,20 @@ const routingDecisionSchema = new mongoose.Schema(
   }
 );
 
-const RoutingDecision = mongoose.model(
-  "RoutingDecision",
-  routingDecisionSchema
-);
+export const MongooseRoutingDecision =
+  mongoose.models.RoutingDecision ||
+  mongoose.model("RoutingDecision", routingDecisionSchema);
+
+// Storage-aware proxy: delegates to memoryStore when STORAGE_MODE=memory
+const RoutingDecision = new Proxy(MongooseRoutingDecision, {
+  get(target, prop, receiver) {
+    if (isMemoryMode()) {
+      if (prop in memoryStore.decisions) {
+        return memoryStore.decisions[prop];
+      }
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+});
 
 export default RoutingDecision;

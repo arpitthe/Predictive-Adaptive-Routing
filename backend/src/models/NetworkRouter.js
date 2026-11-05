@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import { memoryStore } from "../storage/memoryStore.js";
+import { isMemoryMode } from "../storage/index.js";
 
 const networkRouterSchema = new mongoose.Schema(
   {
@@ -38,9 +40,20 @@ const networkRouterSchema = new mongoose.Schema(
   }
 );
 
-const NetworkRouter = mongoose.model(
-  "NetworkRouter",
-  networkRouterSchema
-);
+export const MongooseNetworkRouter =
+  mongoose.models.NetworkRouter ||
+  mongoose.model("NetworkRouter", networkRouterSchema);
+
+// Storage-aware proxy: delegates to memoryStore when STORAGE_MODE=memory
+const NetworkRouter = new Proxy(MongooseNetworkRouter, {
+  get(target, prop, receiver) {
+    if (isMemoryMode()) {
+      if (prop in memoryStore.routers) {
+        return memoryStore.routers[prop];
+      }
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+});
 
 export default NetworkRouter;

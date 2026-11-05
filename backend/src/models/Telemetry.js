@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import { memoryStore } from "../storage/memoryStore.js";
+import { isMemoryMode } from "../storage/index.js";
 
 const telemetrySchema = new mongoose.Schema(
   {
@@ -38,7 +40,7 @@ const telemetrySchema = new mongoose.Schema(
 
     source: {
       type: String,
-      enum: ["manual", "simulator", "gns3"],
+      enum: ["manual", "simulator", "gns3", "demo_seed", "replay"],
       default: "manual",
     },
 
@@ -56,6 +58,19 @@ const telemetrySchema = new mongoose.Schema(
 // Efficient chronological history queries
 telemetrySchema.index({ link: 1, measuredAt: -1 });
 
-const Telemetry = mongoose.model("Telemetry", telemetrySchema);
+export const MongooseTelemetry =
+  mongoose.models.Telemetry || mongoose.model("Telemetry", telemetrySchema);
+
+// Storage-aware proxy: delegates to memoryStore when STORAGE_MODE=memory
+const Telemetry = new Proxy(MongooseTelemetry, {
+  get(target, prop, receiver) {
+    if (isMemoryMode()) {
+      if (prop in memoryStore.telemetry) {
+        return memoryStore.telemetry[prop];
+      }
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+});
 
 export default Telemetry;
