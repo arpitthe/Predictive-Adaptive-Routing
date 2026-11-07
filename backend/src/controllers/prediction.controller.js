@@ -13,24 +13,46 @@ const getStableLinkIndex = async (link) => {
     return link.mlLinkIndex;
   }
 
-  const latestIndexedLink = await NetworkLink.findOne({
-    mlLinkIndex: { $exists: true },
-  }).sort({ mlLinkIndex: -1 });
+  for (let attempt = 0; attempt < 30; attempt++) {
+    const latestIndexedLink = await NetworkLink.findOne({
+      mlLinkIndex: { $exists: true },
+    }).sort({ mlLinkIndex: -1 }).select("mlLinkIndex");
 
-  const nextIndex = (latestIndexedLink?.mlLinkIndex || 0) + 1;
+    const nextIndex = (latestIndexedLink?.mlLinkIndex || 0) + 1;
 
-  if (nextIndex > 30) {
-    throw new Error(
-      "ML link index limit reached. The ML service supports indexes 1–30."
-    );
+    if (nextIndex > 30) {
+      throw new Error(
+        "ML link index limit reached. The ML service supports indexes 1–30."
+      );
+    }
+
+    try {
+      const updated = await NetworkLink.findOneAndUpdate(
+        { _id: link._id, mlLinkIndex: { $exists: false } },
+        { $set: { mlLinkIndex: nextIndex } },
+        { new: true }
+      );
+
+      if (updated) {
+        link.mlLinkIndex = updated.mlLinkIndex;
+        return updated.mlLinkIndex;
+      }
+
+      const refreshed = await NetworkLink.findById(link._id).select("mlLinkIndex");
+
+      if (refreshed?.mlLinkIndex) {
+        link.mlLinkIndex = refreshed.mlLinkIndex;
+        return refreshed.mlLinkIndex;
+      }
+    } catch (error) {
+      if (error.code !== 11000) {
+        throw error;
+      }
+    }
   }
 
-  link.mlLinkIndex = nextIndex;
-  await link.save();
-
-  return nextIndex;
+  throw new Error("Could not allocate a unique ML link index.");
 };
-
 const calculateTrend = (values) => {
   const count = values.length;
   const meanX = (count - 1) / 2;
